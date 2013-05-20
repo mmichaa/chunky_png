@@ -35,7 +35,33 @@ module ChunkyPNG
       def grayscale
         dup.grayscale!
       end
-      
+
+      # Converts the canvas to monochrome.
+      #
+      # This method will modify the canvas. The obtain a new canvas and leave the 
+      # current instance intact, use {#monochrome} instead.
+      #
+      # @param [Integer] threshold The threshold for converting.
+      # @return [ChunkyPNG::Canvas] Returns itself, converted to monochrome.
+      # @see {#monochrome}
+      # @see {ChunkyPNG::Color#to_monochrome}
+      def monochrome!(threshold=0.5)
+        pixels.map! { |pixel| ChunkyPNG::Color.to_monochrome(pixel, threshold) }
+        return self
+      end
+
+      # Converts the canvas to monochrome, returning a new canvas.
+      #
+      # This method will not modify the canvas. To modift the current canvas,
+      # use {#monochrome!} instead.
+      #
+      # @return [ChunkyPNG::Canvas] A copy of the canvas, converted to monochrome.
+      # @see {#monochrome!}
+      # @see {ChunkyPNG::Color#to_monochrome}
+      def monochrome
+        dup.monochrome!
+      end
+
       # Composes another image onto this image using alpha blending. This will modify
       # the current canvas.
       #
@@ -163,7 +189,63 @@ module ChunkyPNG
         end
         replace_canvas!(crop_width, crop_height, new_pixels)
       end
-      
+
+      def trim(trim_color=ChunkyPNG::Color::WHITE)
+        dup.trim!(trim_color)
+      end
+
+      def trim!(trim_color=ChunkyPNG::Color::WHITE)
+        # init
+        top_left = [0, 0]
+        bottom_right = [width-1, height-1]
+
+        # top_left's x
+        (0..width-1).each do |coord_x|
+          column = column(coord_x)
+          if column.all? { |pixel| pixel == trim_color }
+            top_left[0] += 1
+          else
+            break
+          end
+        end
+
+        # top_left's y
+        (0..height-1).each do |coord_y|
+          row = row(coord_y)
+          if row.all? { |pixel| pixel == trim_color }
+            top_left[1] += 1
+          else
+            break
+          end
+        end
+
+        # bottom_right's x
+        (0..width-1).each do |coord_x|
+          coord_x = width-1 - coord_x
+          column = column(coord_x)
+          if column.all? { |pixel| pixel == trim_color }
+            bottom_right[0] -= 1
+          else
+            break
+          end
+        end
+
+        # bottom_right's y
+        (0..height-1).each do |coord_y|
+          coord_y = height-1 - coord_y
+          row = row(coord_y)
+          if row.all? { |pixel| pixel == trim_color }
+            bottom_right[1] -= 1
+          else
+            break
+          end
+        end
+
+        # crop
+        crop!(top_left[0], top_left[1], bottom_right[0] - top_left[0] + 1, bottom_right[1] - top_left[1] + 1)
+        return self
+      end
+
       # Flips the image horizontally, leaving the original intact.
       #
       # This will flip the image on its horizontal axis, e.g. pixels on the top will now

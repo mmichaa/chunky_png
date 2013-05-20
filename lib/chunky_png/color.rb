@@ -348,7 +348,24 @@ module ChunkyPNG
     # @see #grayscale_teint
     def to_grayscale(color)
       grayscale_alpha(grayscale_teint(color), a(color))
-    end    
+    end
+
+    # Converts a color to {BLACK} or {WHITE} value using a threshold. It will
+    # drop the alpha channel.
+    #
+    # @param [Integer] color The color to convert.
+    # @param [Integer] threshold The threshold for converting.
+    # @return [Integer] The input color, converted to {BLACK} or {WHITE}.
+    # @see BLACK
+    # @see WHITE
+    def to_monochrome(color, threshold=0.5)
+      color_threshold = WHITE * threshold
+      if color < color_threshold
+        BLACK
+      else
+        WHITE
+      end
+    end
 
     # Lowers the intensity of a color, by lowering its alpha by a given factor.
     # @param [Integer] color The color to adjust.

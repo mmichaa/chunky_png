@@ -28,7 +28,28 @@ describe ChunkyPNG::Canvas::Operations do
       subject.should == reference_canvas('operations_grayscale')
     end
   end  
-  
+
+  describe '#monochrome' do
+    it "should not return itself" do
+      subject.grayscale.should_not equal(subject)
+    end
+
+    it "should return only BLACK or WHITE pixels" do
+      subject.monochrome.pixels.should(be_all { |pixel| [ChunkyPNG::Color::BLACK, ChunkyPNG::Color::WHITE].include?(pixel) })
+    end
+  end
+
+  describe '#monochrome!' do
+    it "should return itself" do
+      subject.grayscale!.should equal(subject)
+    end
+
+    it "should return only BLACK or WHITE pixels" do
+      subject.monochrome!
+      subject.pixels.should(be_all { |pixel| [ChunkyPNG::Color::BLACK, ChunkyPNG::Color::WHITE].include?(pixel) })
+    end
+  end
+
   describe '#crop' do
     it "should crop the right pixels from the original canvas" do
       subject.crop(10, 5, 4, 8).should == reference_canvas('cropped')

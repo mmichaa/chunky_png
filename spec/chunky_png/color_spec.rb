@@ -169,6 +169,14 @@ describe ChunkyPNG::Color do
       a(to_grayscale(@opaque)).should == ChunkyPNG::Color::MAX
     end
   end
+
+  describe '#to_monochrome' do
+    it "should return BLACK or WHITE" do
+    end
+
+    it "should drop the alpha channel" do
+    end
+  end
   
   describe '#to_hex' do
     it "should represent colors correcly using hex notation" do
